@@ -1,6 +1,6 @@
 # SPLFormViewController
 
-[![CI Status](http://img.shields.io/travis/Oliver Letterer/SPLFormViewController.svg?style=flat)](https://travis-ci.org/Oliver Letterer/SPLFormViewController)
+[![CI Status](http://img.shields.io/travis/OliverLetterer/SPLFormViewController.svg?style=flat)](https://travis-ci.org/OliverLetterer/SPLFormViewController)
 [![Version](https://img.shields.io/cocoapods/v/SPLFormViewController.svg?style=flat)](http://cocoadocs.org/docsets/SPLFormViewController)
 [![License](https://img.shields.io/cocoapods/l/SPLFormViewController.svg?style=flat)](http://cocoadocs.org/docsets/SPLFormViewController)
 [![Platform](https://img.shields.io/cocoapods/p/SPLFormViewController.svg?style=flat)](http://cocoadocs.org/docsets/SPLFormViewController)
