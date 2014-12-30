@@ -12,6 +12,6 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   Expecta: 03aabd0a89d8dea843baecb19a7fd7466a69a31d
-  SPLFormViewController: 556a74e8698cedf51717ab03f79a320c7a93737b
+  SPLFormViewController: f1a5a2dc1869b56c7f828aea0fd5a53d675a6490
 
 COCOAPODS: 0.35.0
