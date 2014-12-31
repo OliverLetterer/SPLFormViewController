@@ -69,7 +69,7 @@
     if (formular != _formular) {
         for (SPLSection *section in _formular) {
             for (SPLField *field in section) {
-                [field.configurator setChangeBlock:nil];
+                [field.adapter setChangeBlock:nil];
             }
         }
 
@@ -80,8 +80,8 @@
         for (SPLSection *section in _formular) {
             for (SPLField *field in section) {
                 __weak typeof(self) weakSelf = self;
-                field.configurator.object = self.object;
-                [field.configurator setChangeBlock:^{
+                field.adapter.object = self.object;
+                [field.adapter setChangeBlock:^{
                     __strong typeof(self) strongSelf = weakSelf;
                     [strongSelf setVisibleSections:[strongSelf.formular visibleSectionsWithObject:strongSelf.object] animated:YES];
                     strongSelf.currentSnapshot = [strongSelf.formular snapshotObject:strongSelf.object];
@@ -111,7 +111,7 @@
 
         if (self.isViewLoaded) {
             if (animated) {
-                [self _animateSectionDiffFromPreviousSections:previousSections toNewSections:_visibleSections];
+                [self _animateSectionDiffFromPreviousSections:previousSections toNewSections:_visibleSections animated:self.view.window != nil];
             } else {
                 [self.tableView reloadData];
             }
@@ -138,7 +138,18 @@
     self.navigationItem.leftBarButtonItem = self.cancelBarButtonItem;
     self.navigationItem.rightBarButtonItem = self.saveBarButtonItem;
 
+    UIView *tableFooterView = [[UIView alloc] initWithFrame:CGRectMake(0.0, 0.0, 0.0, 1.0)];
+    tableFooterView.backgroundColor = [UIColor clearColor];
+    self.tableView.tableFooterView = tableFooterView;
+
     [self _updateCancelBarButtonItem];
+}
+
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+
+    [self.tableView reloadData];
 }
 
 #pragma mark - UITableViewDataSource
@@ -158,17 +169,17 @@
 {
     SPLField *field = self.visibleSections[indexPath.section][indexPath.row];
 
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:[field.configurator reuseIdentifier]];
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:[field.adapter reuseIdentifier]];
     if (!cell) {
-        cell = [[[field.configurator tableViewCellClass] alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:[field.configurator reuseIdentifier]];
+        cell = [[[field.adapter tableViewCellClass] alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:[field.adapter reuseIdentifier]];
 
-        if (![field.configurator respondsToSelector:@selector(tableView:didSelectRowAtIndexPath:forField:)]) {
+        if (![field.adapter respondsToSelector:@selector(tableView:didSelectRowAtIndexPath:forField:)]) {
             cell.selectionStyle = UITableViewCellSelectionStyleNone;
         }
     }
 
     cell.textLabel.text = field.title;
-    [field.configurator configureTableViewCell:cell forField:field];
+    [field.adapter configureTableViewCell:cell forField:field];
 
     return cell;
 }
@@ -179,11 +190,11 @@
 {
     SPLField *field = self.visibleSections[indexPath.section][indexPath.row];
 
-    if (![field.configurator respondsToSelector:@selector(tableView:didSelectRowAtIndexPath:forField:)]) {
+    if (![field.adapter respondsToSelector:@selector(tableView:didSelectRowAtIndexPath:forField:)]) {
         return [tableView deselectRowAtIndexPath:indexPath animated:NO];
     }
 
-    [field.configurator tableView:tableView didSelectRowAtIndexPath:indexPath forField:field];
+    [field.adapter tableView:tableView didSelectRowAtIndexPath:indexPath forField:field];
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
@@ -203,16 +214,18 @@
 
 #pragma mark - Private category implementation ()
 
-- (void)_animateSectionDiffFromPreviousSections:(NSArray *)previousSections toNewSections:(NSArray *)newSections
+- (void)_animateSectionDiffFromPreviousSections:(NSArray *)previousSections toNewSections:(NSArray *)newSections animated:(BOOL)animated
 {
     SPLSectionDiff *diff = [[SPLSectionDiff alloc] initWithSections:newSections previousSections:previousSections];
+    UITableViewRowAnimation animation = animated ? UITableViewRowAnimationTop : UITableViewRowAnimationNone;
+
     [self.tableView beginUpdates];
 
-    [self.tableView deleteSections:diff.deletedSections withRowAnimation:UITableViewRowAnimationTop];
-    [self.tableView deleteRowsAtIndexPaths:diff.deletedIndexPaths withRowAnimation:UITableViewRowAnimationTop];
+    [self.tableView deleteSections:diff.deletedSections withRowAnimation:animation];
+    [self.tableView deleteRowsAtIndexPaths:diff.deletedIndexPaths withRowAnimation:animation];
 
-    [self.tableView insertSections:diff.insertedSections withRowAnimation:UITableViewRowAnimationTop];
-    [self.tableView insertRowsAtIndexPaths:diff.insertedIndexPaths withRowAnimation:UITableViewRowAnimationTop];
+    [self.tableView insertSections:diff.insertedSections withRowAnimation:animation];
+    [self.tableView insertRowsAtIndexPaths:diff.insertedIndexPaths withRowAnimation:animation];
 
     [self.tableView endUpdates];
 }
@@ -248,11 +261,11 @@
 
     UIBarButtonItem *previousBarButtonItem = self.navigationItem.rightBarButtonItem;
     self.navigationItem.rightBarButtonItem = self.activityIndicatorBarButtonItem;
-    self.navigationController.view.userInteractionEnabled = NO;
+    [[UIApplication sharedApplication] beginIgnoringInteractionEvents];
 
     void(^cleanupUI)(void) = ^{
         self.navigationItem.rightBarButtonItem = previousBarButtonItem;
-        self.navigationController.view.userInteractionEnabled = YES;
+        [[UIApplication sharedApplication] endIgnoringInteractionEvents];
 
         [[UIApplication sharedApplication] sendAction:@selector(resignFirstResponder) to:nil from:nil forEvent:nil];
     };

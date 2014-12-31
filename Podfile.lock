@@ -1,6 +1,6 @@
 PODS:
   - Expecta (0.3.1)
-  - SPLFormViewController (0.1.0)
+  - SPLFormViewController (0.2.0)
 
 DEPENDENCIES:
   - Expecta
@@ -12,6 +12,6 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   Expecta: 03aabd0a89d8dea843baecb19a7fd7466a69a31d
-  SPLFormViewController: f1a5a2dc1869b56c7f828aea0fd5a53d675a6490
+  SPLFormViewController: 82a1a92f38a35cd6ffb105d24dba947f2380a27d
 
 COCOAPODS: 0.35.0

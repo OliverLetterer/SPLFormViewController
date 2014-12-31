@@ -1,5 +1,5 @@
 //
-//  SPLPlainCellConfigurator.h
+//  SPLPlainUIAdapter.h
 //  Pods
 //
 //  Created by Oliver Letterer.
@@ -21,7 +21,7 @@ typedef NS_ENUM(NSInteger, SPLPropertyType) {
 
 
 
-@interface SPLField (SPLPlainCellConfigurator)
+@interface SPLField (SPLPlainUIAdapter)
 - (instancetype)initWithProperty:(NSString *)property title:(NSString *)title type:(SPLPropertyType)type;
 @end
 
@@ -30,10 +30,11 @@ typedef NS_ENUM(NSInteger, SPLPropertyType) {
 /**
  @abstract  <#abstract comment#>
  */
-@interface SPLPlainCellConfigurator : NSObject <SPLCellConfigurator>
+@interface SPLPlainUIAdapter : NSObject <SPLFieldUIAdapter>
 
 @property (nonatomic, copy) dispatch_block_t changeBlock;
 @property (nonatomic, unsafe_unretained) id object;
+
 @property (nonatomic, readonly) SPLPropertyType type;
 
 - (instancetype)init UNAVAILABLE_ATTRIBUTE;

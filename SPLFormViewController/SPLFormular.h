@@ -11,7 +11,7 @@
 
 @class SPLField;
 
-@protocol SPLCellConfigurator <NSObject>
+@protocol SPLFieldUIAdapter <NSObject>
 
 @property (nonatomic, copy) dispatch_block_t changeBlock;
 @property (nonatomic, unsafe_unretained) id object;
@@ -35,13 +35,13 @@
 
 @property (nonatomic, readonly) NSString *property;
 @property (nonatomic, readonly) NSString *title;
-@property (nonatomic, readonly) id<SPLCellConfigurator> configurator;
+@property (nonatomic, readonly) id<SPLFieldUIAdapter> adapter;
 
 - (BOOL)isEqualToField:(SPLField *)field;
 - (Class)propertyClassWithObject:(id)object;
 
 - (instancetype)init UNAVAILABLE_ATTRIBUTE;
-- (instancetype)initWithProperty:(NSString *)property title:(NSString *)title configurator:(id<SPLCellConfigurator>)configurator NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithProperty:(NSString *)property title:(NSString *)title adapter:(id<SPLFieldUIAdapter>)adapter NS_DESIGNATED_INITIALIZER;
 
 @end
 

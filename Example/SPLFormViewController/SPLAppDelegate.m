@@ -8,6 +8,7 @@
 
 #import "SPLAppDelegate.h"
 #import <SPLFormViewController.h>
+#import <SPLSelectEnumValuesViewController.h>
 
 @interface TestObject : NSObject
 @property (nonatomic, readonly) NSString *username;
@@ -17,6 +18,9 @@
 
 @property (nonatomic, readonly) NSNumber *hasHomepage;
 @property (nonatomic, readonly) NSString *homepage;
+
+@property (nonatomic, readonly) NSString *hearedAboutUsFrom;
+@property (nonatomic, readonly) NSArray *multipleSelection;
 
 @property (nonatomic, readonly) NSNumber *isHuman;
 @property (nonatomic, readonly) NSString *firstName;
@@ -36,6 +40,10 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    UITableView *tableView = [UITableView appearance];
+    tableView.rowHeight = UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ? 88.0 : 66.0;
+    tableView.keyboardDismissMode = UIScrollViewKeyboardDismissModeOnDrag;
+
     self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
     self.window.backgroundColor = [UIColor whiteColor];
 
@@ -79,15 +87,29 @@
                  ];
     }];
 
+    SPLEnumUIAdapter *hearedAboutUsFromAdapter = [[SPLEnumUIAdapter alloc] initWithPlaceholder:@"Download URLs" downloadableContent:^(SPLEnumUIAdapterDownloadCompletionHandler completionHandler) {
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            completionHandler(@[ @"Google", @"A friend" ], @[ @"http://www.google.de", @"Cartman" ], nil);
+        });
+    }];
+    SPLEnumUIAdapter *multiSelection = [[SPLEnumUIAdapter alloc] initWithHumanReadableOptions:@[ @"First option", @"Second option", @"Third option" ]
+                                                                                       values:@[ @"First value", @"Second value", @"Third value" ]];
+    SPLSection *enums = [[SPLSection alloc] initWithIdentifier:@"ENUMS" title:@"Enum values" fields:^NSArray *{
+        return @[
+                 [[SPLField alloc] initWithProperty:@"hearedAboutUsFrom" title:@"Von wo kommst du?" adapter:hearedAboutUsFromAdapter ],
+                 [[SPLField alloc] initWithProperty:@"multipleSelection" title:@"Mehrfachauswahl" adapter:multiSelection ],
+                 ];
+    }];
+
     SPLSection *section3 = [[SPLSection alloc] initWithIdentifier:@"3" title:NSLocalizedString(@"Last section", @"") fields:^NSArray *{
         return @[
                  [[SPLField alloc] initWithProperty:@"homepage" title:NSLocalizedString(@"Homepage", @"") type:SPLPropertyTypeURL],
                  ];
     }];
 
-    NSArray *sections = @[ section0, section1, section2, section3 ];
+    NSArray *sections = @[ section0, section1, section2, section3, enums ];
     NSDictionary *predicates = @{
-                                 @"homepage": [NSPredicate predicateWithFormat:@"hasHomepage == NO OR hasHomepage == nil"],
+                                 @"homepage": [NSPredicate predicateWithFormat:@"hasHomepage == YES"],
                                  @"username": [NSPredicate predicateWithFormat:@"isHuman == YES"],
                                  @"firstName": [NSPredicate predicateWithFormat:@"isHuman == YES"],
                                  @"lastName": [NSPredicate predicateWithFormat:@"isHuman == YES"],
@@ -97,7 +119,6 @@
                                  @"country": [NSPredicate predicateWithFormat:@"isHuman == YES"],
                                  };
     viewController.formular = [[SPLFormular alloc] initWithSections:sections predicates:predicates];
-    viewController.tableView.rowHeight = UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ? 88.0 : 66.0;
 
     [viewController setCompletionHandler:^(BOOL savedObject) {
         [_navigationController popToRootViewControllerAnimated:YES];

@@ -71,16 +71,16 @@ static Class property_getObjcClass(objc_property_t property)
     return property_getObjcClass(property);
 }
 
-- (instancetype)initWithProperty:(NSString *)property title:(NSString *)title configurator:(id<SPLCellConfigurator>)configurator
+- (instancetype)initWithProperty:(NSString *)property title:(NSString *)title adapter:(id<SPLFieldUIAdapter>)adapter
 {
     NSParameterAssert(property);
     NSParameterAssert(title);
-    NSParameterAssert(configurator);
+    NSParameterAssert(adapter);
 
     if (self = [super init]) {
         _property = property.copy;
         _title = title.copy;
-        _configurator = configurator;
+        _adapter = adapter;
     }
     return self;
 }
@@ -212,8 +212,8 @@ static Class property_getObjcClass(objc_property_t property)
                 [NSException raise:NSInternalInconsistencyException format:@"object %@ does not contain property %@", object, field.property];
             }
 
-            if ([field.configurator respondsToSelector:@selector(enforceConsistencyWithObject:forField:)]) {
-                [field.configurator enforceConsistencyWithObject:object forField:field];
+            if ([field.adapter respondsToSelector:@selector(enforceConsistencyWithObject:forField:)]) {
+                [field.adapter enforceConsistencyWithObject:object forField:field];
             }
         }
     }

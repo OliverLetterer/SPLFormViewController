@@ -1,12 +1,12 @@
 //
-//  SPLPlainCellConfigurator.m
+//  SPLPlainUIAdapter.m
 //  Pods
 //
 //  Created by Oliver Letterer.
 //  Copyright 2014 __MyCompanyName__. All rights reserved.
 //
 
-#import "SPLPlainCellConfigurator.h"
+#import "SPLPlainUIAdapter.h"
 #import "SPLFormSwitchCell.h"
 #import "SPLFormTextFieldCell.h"
 #import "SPLFormTableViewCell.h"
@@ -17,11 +17,11 @@ static double doubleValue(NSString *text)
     return [text stringByReplacingOccurrencesOfString:@"," withString:@"."].doubleValue;
 }
 
-@implementation SPLField (SPLPlainCellConfigurator)
+@implementation SPLField (SPLPlainUIAdapter)
 
 - (instancetype)initWithProperty:(NSString *)property title:(NSString *)title type:(SPLPropertyType)type
 {
-    return [self initWithProperty:property title:title configurator:[[SPLPlainCellConfigurator alloc] initWithType:type]];
+    return [self initWithProperty:property title:title adapter:[[SPLPlainUIAdapter alloc] initWithType:type]];
 }
 
 @end
@@ -29,7 +29,7 @@ static double doubleValue(NSString *text)
 
 
 static const void * fieldKey = &fieldKey;
-@implementation SPLPlainCellConfigurator
+@implementation SPLPlainUIAdapter
 
 - (BOOL)respondsToSelector:(SEL)aSelector
 {

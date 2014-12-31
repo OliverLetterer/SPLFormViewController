@@ -7,8 +7,10 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 #import <SPLFormular.h>
-#import <SPLPlainCellConfigurator.h>
+#import <SPLPlainUIAdapter.h>
+#import <SPLEnumUIAdapter.h>
 
 
 
