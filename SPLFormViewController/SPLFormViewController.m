@@ -7,11 +7,14 @@
 //
 
 #import "SPLFormViewController.h"
+#import "SPLObjectSnapshot.h"
 
 
 
 @interface SPLFormViewController ()
 @property (nonatomic, strong) NSArray *visibleSections;
+@property (nonatomic, readonly) SPLObjectSnapshot *initialSnapshot;
+@property (nonatomic, strong) SPLObjectSnapshot *currentSnapshot;
 @end
 
 
@@ -19,6 +22,47 @@
 @implementation SPLFormViewController
 
 #pragma mark - setters and getters
+
+- (void)setCompletionHandler:(void (^)(BOOL))completionHandler
+{
+    _completionHandler = completionHandler;
+}
+
+- (UIBarButtonItem *)cancelBarButtonItem
+{
+    if (!_cancelBarButtonItem) {
+        _cancelBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(_cancelTapped:)];
+    }
+    return _cancelBarButtonItem;
+}
+
+- (UIBarButtonItem *)saveBarButtonItem
+{
+    if (!_saveBarButtonItem) {
+        _saveBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemSave target:self action:@selector(_saveTapped:)];
+    }
+    return _saveBarButtonItem;
+}
+
+- (UIBarButtonItem *)activityIndicatorBarButtonItem
+{
+    UIActivityIndicatorView *activityIndicatorView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+    [activityIndicatorView startAnimating];
+
+    return [[UIBarButtonItem alloc] initWithCustomView:activityIndicatorView];
+}
+
+
+- (void)setCurrentSnapshot:(SPLObjectSnapshot *)currentSnapshot
+{
+    if (currentSnapshot != _currentSnapshot) {
+        _currentSnapshot = currentSnapshot;
+
+        if (self.isViewLoaded) {
+            [self _updateCancelBarButtonItem];
+        }
+    }
+}
 
 - (void)setFormular:(SPLFormular *)formular
 {
@@ -30,6 +74,8 @@
         }
 
         _formular = formular;
+        _initialSnapshot = [_formular snapshotObject:self.object];
+        self.currentSnapshot = self.initialSnapshot;
 
         for (SPLSection *section in _formular) {
             for (SPLField *field in section) {
@@ -38,6 +84,7 @@
                 [field.configurator setChangeBlock:^{
                     __strong typeof(self) strongSelf = weakSelf;
                     [strongSelf setVisibleSections:[strongSelf.formular visibleSectionsWithObject:strongSelf.object] animated:YES];
+                    strongSelf.currentSnapshot = [strongSelf.formular snapshotObject:strongSelf.object];
                 }];
             }
         }
@@ -82,6 +129,16 @@
         _object = object;
     }
     return self;
+}
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+
+    self.navigationItem.leftBarButtonItem = self.cancelBarButtonItem;
+    self.navigationItem.rightBarButtonItem = self.saveBarButtonItem;
+
+    [self _updateCancelBarButtonItem];
 }
 
 #pragma mark - UITableViewDataSource
@@ -135,6 +192,15 @@
     return sectionObject.title;
 }
 
+#pragma mark - Instance methods
+
+- (void)saveWithCompletionHandler:(void(^)(NSError *error))completionHandler
+{
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        completionHandler(nil);
+    });
+}
+
 #pragma mark - Private category implementation ()
 
 - (void)_animateSectionDiffFromPreviousSections:(NSArray *)previousSections toNewSections:(NSArray *)newSections
@@ -149,6 +215,66 @@
     [self.tableView insertRowsAtIndexPaths:diff.insertedIndexPaths withRowAnimation:UITableViewRowAnimationTop];
 
     [self.tableView endUpdates];
+}
+
+- (void)_updateCancelBarButtonItem
+{
+    if (_cancelBarButtonItem) {
+        BOOL snapshotIsEqual = [self.currentSnapshot isEqualToSnapshot:self.initialSnapshot];
+        BOOL firstInNavigationController = self.navigationController.viewControllers.firstObject == self;
+        BOOL isBeingPresented = self.isBeingPresented || self.navigationController.isBeingPresented;
+
+        if (snapshotIsEqual && !firstInNavigationController && !isBeingPresented) {
+            [self.navigationItem setLeftBarButtonItem:nil animated:YES];
+        } else if (self.navigationItem.leftBarButtonItem != self.cancelBarButtonItem) {
+            [self.navigationItem setLeftBarButtonItem:self.cancelBarButtonItem animated:YES];
+        }
+    }
+}
+
+- (void)_cancelTapped:(UIBarButtonItem *)sender
+{
+    [self.initialSnapshot restoreObject:self.object];
+
+    if (self.completionHandler) {
+        self.completionHandler(NO);
+        self.completionHandler = nil;
+    }
+}
+
+- (void)_saveTapped:(UIBarButtonItem *)sender
+{
+    [[UIApplication sharedApplication] sendAction:@selector(resignFirstResponder) to:nil from:nil forEvent:nil];
+
+    UIBarButtonItem *previousBarButtonItem = self.navigationItem.rightBarButtonItem;
+    self.navigationItem.rightBarButtonItem = self.activityIndicatorBarButtonItem;
+    self.navigationController.view.userInteractionEnabled = NO;
+
+    void(^cleanupUI)(void) = ^{
+        self.navigationItem.rightBarButtonItem = previousBarButtonItem;
+        self.navigationController.view.userInteractionEnabled = YES;
+
+        [[UIApplication sharedApplication] sendAction:@selector(resignFirstResponder) to:nil from:nil forEvent:nil];
+    };
+
+    [self saveWithCompletionHandler:^(NSError *error) {
+        cleanupUI();
+
+        if (error) {
+            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:error.localizedDescription
+                                                            message:error.localizedFailureReason
+                                                           delegate:nil
+                                                  cancelButtonTitle:NSLocalizedString(@"OK", @"")
+                                                  otherButtonTitles:nil];
+            [alert show];
+            return;
+        }
+
+        if (self.completionHandler) {
+            self.completionHandler(YES);
+            self.completionHandler = nil;
+        }
+    }];
 }
 
 @end

@@ -48,6 +48,8 @@ static Class property_getObjcClass(objc_property_t property)
     return NSClassFromString(className);
 }
 
+
+
 @implementation SPLField
 
 - (BOOL)isEqual:(id)object
@@ -92,15 +94,6 @@ static Class property_getObjcClass(objc_property_t property)
 - (SPLField *)objectAtIndexedSubscript:(NSUInteger)idx
 {
     return self.fields[idx];
-}
-
-- (SPLSection *)sectionByDeletingFields:(NSArray *)fields
-{
-    NSMutableArray *newFields = self.fields.mutableCopy;
-    [newFields removeObjectsInArray:fields];
-    return [[SPLSection alloc] initWithIdentifier:self.identifier title:self.title fields:^NSArray *{
-        return newFields;
-    }];
 }
 
 - (NSUInteger)countByEnumeratingWithState:(NSFastEnumerationState *)state objects:(id __unsafe_unretained [])buffer count:(NSUInteger)len

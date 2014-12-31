@@ -20,6 +20,15 @@
 @property (nonatomic, strong) SPLFormular *formular;
 @property (nonatomic, readonly) id object;
 
+@property (nonatomic, copy, readonly) void(^completionHandler)(BOOL didSaveObject);
+- (void)setCompletionHandler:(void (^)(BOOL didSaveObject))completionHandler;
+
+@property (nonatomic, strong) UIBarButtonItem *cancelBarButtonItem;
+@property (nonatomic, strong) UIBarButtonItem *saveBarButtonItem;
+@property (nonatomic, readonly) UIBarButtonItem *activityIndicatorBarButtonItem;
+
+- (void)saveWithCompletionHandler:(void(^)(NSError *error))completionHandler;
+
 - (instancetype)init UNAVAILABLE_ATTRIBUTE;
 - (instancetype)initWithStyle:(UITableViewStyle)style UNAVAILABLE_ATTRIBUTE;
 - (instancetype)initWithObject:(id)object NS_DESIGNATED_INITIALIZER;

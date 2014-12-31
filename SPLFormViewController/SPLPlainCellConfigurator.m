@@ -220,6 +220,7 @@ static const void * fieldKey = &fieldKey;
         case SPLPropertyTypePassword:
         case SPLPropertyTypeURL:
             [self.object setValue:textField.text forKey:field.property];
+            self.changeBlock();
             break;
         case SPLPropertyTypeNumber:
         case SPLPropertyTypePrice:
@@ -228,6 +229,7 @@ static const void * fieldKey = &fieldKey;
             } else {
                 [self.object setValue:textField.text forKey:field.property];
             }
+            self.changeBlock();
             break;
         case SPLPropertyTypeBoolean:
             [self doesNotRecognizeSelector:_cmd];

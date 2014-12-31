@@ -30,16 +30,28 @@
 
 
 
-@implementation SPLAppDelegate
+@implementation SPLAppDelegate {
+    UINavigationController *_navigationController;
+}
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
     self.window.backgroundColor = [UIColor whiteColor];
 
-    SPLFormViewController *viewController = [[SPLFormViewController alloc] initWithObject:[TestObject new]];
-    self.window.rootViewController = [[UINavigationController alloc] initWithRootViewController:viewController];
+    UIViewController *firstViewController = [[UIViewController alloc] init];
+    firstViewController.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Edit object" style:UIBarButtonItemStylePlain target:self action:@selector(_edit)];
 
+    _navigationController = [[UINavigationController alloc] initWithRootViewController:firstViewController];
+    self.window.rootViewController = _navigationController;
+    [self.window makeKeyAndVisible];
+
+    return YES;
+}
+
+- (void)_edit
+{
+    SPLFormViewController *viewController = [[SPLFormViewController alloc] initWithObject:[TestObject new]];
     SPLSection *section0 = [[SPLSection alloc] initWithIdentifier:@"1" title:NSLocalizedString(@"Contact", @"") fields:^NSArray *{
         return @[
                  [[SPLField alloc] initWithProperty:@"firstName" title:NSLocalizedString(@"First name", @"") type:SPLPropertyTypePlainText],
@@ -87,9 +99,11 @@
     viewController.formular = [[SPLFormular alloc] initWithSections:sections predicates:predicates];
     viewController.tableView.rowHeight = UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ? 88.0 : 66.0;
 
-    [self.window makeKeyAndVisible];
+    [viewController setCompletionHandler:^(BOOL savedObject) {
+        [_navigationController popToRootViewControllerAnimated:YES];
+    }];
 
-    return YES;
+    [_navigationController pushViewController:viewController animated:YES];
 }
 
 @end

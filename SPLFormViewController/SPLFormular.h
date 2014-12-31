@@ -55,7 +55,6 @@
 
 - (BOOL)isEqualToSection:(SPLSection *)section;
 - (SPLField *)objectAtIndexedSubscript:(NSUInteger)idx;
-- (SPLSection *)sectionByDeletingFields:(NSArray *)fields;
 
 - (instancetype)init UNAVAILABLE_ATTRIBUTE;
 - (instancetype)initWithIdentifier:(NSString *)identifier fields:(NSArray /* SPLField */ *(^)())fields;
