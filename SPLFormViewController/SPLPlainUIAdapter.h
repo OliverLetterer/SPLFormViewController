@@ -10,12 +10,14 @@
 #import <SPLFormular.h>
 
 typedef NS_ENUM(NSInteger, SPLPropertyType) {
-    SPLPropertyTypePlainText,
+    SPLPropertyTypeHumanText,
+    SPLPropertyTypeMachineText,
     SPLPropertyTypeEMail,
     SPLPropertyTypePassword,
     SPLPropertyTypeURL,
     SPLPropertyTypeNumber,
     SPLPropertyTypePrice,
+    SPLPropertyTypeIPAddress,
     SPLPropertyTypeBoolean,
 };
 

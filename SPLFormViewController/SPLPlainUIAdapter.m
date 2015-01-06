@@ -43,12 +43,14 @@ static const void * fieldKey = &fieldKey;
 - (NSString *)reuseIdentifier
 {
     switch (self.type) {
-        case SPLPropertyTypePlainText:
+        case SPLPropertyTypeHumanText:
+        case SPLPropertyTypeMachineText:
         case SPLPropertyTypeEMail:
         case SPLPropertyTypePassword:
         case SPLPropertyTypeURL:
         case SPLPropertyTypeNumber:
         case SPLPropertyTypePrice:
+        case SPLPropertyTypeIPAddress:
             return @"__InternalSPLFormTextFieldCell";
             break;
         case SPLPropertyTypeBoolean:
@@ -60,12 +62,14 @@ static const void * fieldKey = &fieldKey;
 - (Class)tableViewCellClass
 {
     switch (self.type) {
-        case SPLPropertyTypePlainText:
+        case SPLPropertyTypeHumanText:
+        case SPLPropertyTypeMachineText:
         case SPLPropertyTypeEMail:
         case SPLPropertyTypePassword:
         case SPLPropertyTypeURL:
         case SPLPropertyTypeNumber:
         case SPLPropertyTypePrice:
+        case SPLPropertyTypeIPAddress:
             return [SPLFormTextFieldCell class];
             break;
         case SPLPropertyTypeBoolean:
@@ -77,10 +81,12 @@ static const void * fieldKey = &fieldKey;
 - (void)enforceConsistencyWithObject:(id)object forField:(SPLField *)field
 {
     switch (self.type) {
-        case SPLPropertyTypePlainText:
+        case SPLPropertyTypeHumanText:
+        case SPLPropertyTypeMachineText:
         case SPLPropertyTypeEMail:
         case SPLPropertyTypePassword:
         case SPLPropertyTypeURL:
+        case SPLPropertyTypeIPAddress:
             if ([field propertyClassWithObject:object] != [NSString class]) {
                 [NSException raise:NSInternalInconsistencyException format:@"%@[%@] must be NSString typed", [object class], field.property];
             }
@@ -105,11 +111,21 @@ static const void * fieldKey = &fieldKey;
     id value = [self.object valueForKey:field.property];
 
     switch (self.type) {
-        case SPLPropertyTypePlainText: {
+        case SPLPropertyTypeHumanText: {
             cell.textField.text = value;
             cell.textField.placeholder = cell.textLabel.text;
             cell.textField.autocapitalizationType = UITextAutocapitalizationTypeWords;
             cell.textField.autocorrectionType = UITextAutocorrectionTypeYes;
+            cell.textField.accessibilityLabel = cell.textLabel.text;
+            cell.textField.secureTextEntry = NO;
+            cell.textField.keyboardType = UIKeyboardTypeAlphabet;
+            break;
+        }
+        case SPLPropertyTypeMachineText: {
+            cell.textField.text = value;
+            cell.textField.placeholder = cell.textLabel.text;
+            cell.textField.autocapitalizationType = UITextAutocapitalizationTypeNone;
+            cell.textField.autocorrectionType = UITextAutocorrectionTypeNo;
             cell.textField.accessibilityLabel = cell.textLabel.text;
             cell.textField.secureTextEntry = NO;
             cell.textField.keyboardType = UIKeyboardTypeAlphabet;
@@ -165,6 +181,16 @@ static const void * fieldKey = &fieldKey;
             cell.textField.keyboardType = UIKeyboardTypeDecimalPad;
             break;
         }
+        case SPLPropertyTypeIPAddress: {
+            cell.textField.text = value ? [NSString stringWithFormat:@"%@", value] : nil;
+            cell.textField.placeholder = cell.textLabel.text;
+            cell.textField.autocapitalizationType = UITextAutocapitalizationTypeNone;
+            cell.textField.autocorrectionType = UITextAutocorrectionTypeNo;
+            cell.textField.accessibilityLabel = cell.textLabel.text;
+            cell.textField.secureTextEntry = NO;
+            cell.textField.keyboardType = UIKeyboardTypeNumbersAndPunctuation;
+            break;
+        }
         case SPLPropertyTypeBoolean: {
             SPLFormSwitchCell *switchCell = (SPLFormSwitchCell *)cell;
             [switchCell.switchControl setOn:[value boolValue] animated:NO];
@@ -215,10 +241,12 @@ static const void * fieldKey = &fieldKey;
     NSParameterAssert(field);
 
     switch (self.type) {
-        case SPLPropertyTypePlainText:
+        case SPLPropertyTypeHumanText:
+        case SPLPropertyTypeMachineText:
         case SPLPropertyTypeEMail:
         case SPLPropertyTypePassword:
         case SPLPropertyTypeURL:
+        case SPLPropertyTypeIPAddress:
             [self.object setValue:textField.text forKey:field.property];
             self.changeBlock();
             break;
