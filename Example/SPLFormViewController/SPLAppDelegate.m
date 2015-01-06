@@ -118,7 +118,10 @@
                                  @"city": [NSPredicate predicateWithFormat:@"isHuman == YES"],
                                  @"country": [NSPredicate predicateWithFormat:@"isHuman == YES"],
                                  };
-    viewController.formular = [[SPLFormular alloc] initWithSections:sections predicates:predicates];
+
+    SPLFormFieldValidator *validator = [SPLFormFieldValidator validatorWithAllTextFields];
+
+    viewController.formular = [[SPLFormular alloc] initWithSections:sections predicates:predicates validators:@[ validator ]];
 
     [viewController setCompletionHandler:^(BOOL savedObject) {
         [_navigationController popToRootViewControllerAnimated:YES];

@@ -11,6 +11,7 @@
 #import <SPLFormular.h>
 #import <SPLPlainUIAdapter.h>
 #import <SPLEnumUIAdapter.h>
+#import <SPLFormFieldValidator.h>
 
 
 
@@ -28,6 +29,8 @@
 @property (nonatomic, strong) UIBarButtonItem *cancelBarButtonItem;
 @property (nonatomic, strong) UIBarButtonItem *saveBarButtonItem;
 @property (nonatomic, readonly) UIBarButtonItem *activityIndicatorBarButtonItem;
+
+- (BOOL)validate:(SPLField **)failingField;
 
 - (void)saveWithCompletionHandler:(void(^)(NSError *error))completionHandler;
 

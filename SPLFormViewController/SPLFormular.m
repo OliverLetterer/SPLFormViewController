@@ -8,6 +8,7 @@
 
 #import "SPLFormular.h"
 #import <objc/runtime.h>
+#import "SPLFormFieldValidator.h"
 
 static NSDictionary *indexBy(NSArray *array, NSString *keyPath)
 {
@@ -228,6 +229,16 @@ static Class property_getObjcClass(objc_property_t property)
             [NSException raise:NSInternalInconsistencyException format:@"self.predicates[%@] %@ is no NSPredicate.", propertyName, self.predicates[propertyName]];
         }
     }
+
+    for (id<SPLFormValidator> validator in self.validators) {
+        if (![validator conformsToProtocol:@protocol(SPLFormValidator)]) {
+            [NSException raise:NSInternalInconsistencyException format:@"validator %@ does not conform to SPLFormValidator protocol", validator];
+        }
+
+        if ([validator respondsToSelector:@selector(enforceConsistencyWithObject:)]) {
+            [validator enforceConsistencyWithObject:object];
+        }
+    }
 }
 
 - (NSArray *)visibleSectionsWithObject:(id)object
@@ -258,6 +269,17 @@ static Class property_getObjcClass(objc_property_t property)
     return visibleSections;
 }
 
+- (BOOL)validateObject:(id)object failingField:(SPLField **)failingField
+{
+    for (id<SPLFormValidator> validator in self.validators) {
+        if (![validator validateObject:object forFormular:self failingField:failingField]) {
+            return NO;
+        }
+    }
+
+    return YES;
+}
+
 - (SPLSection *)objectAtIndexedSubscript:(NSUInteger)idx
 {
     return self.sections[idx];
@@ -270,14 +292,25 @@ static Class property_getObjcClass(objc_property_t property)
 
 - (instancetype)initWithSections:(NSArray *)sections
 {
-    return [self initWithSections:sections predicates:@{}];
+    return [self initWithSections:sections predicates:@{} validators:@[]];
 }
 
-- (instancetype)initWithSections:(NSArray /* SPLSection */ *)sections predicates:(NSDictionary *)predicates
+- (instancetype)initWithSections:(NSArray *)sections predicates:(NSDictionary *)predicates
+{
+    return [self initWithSections:sections predicates:predicates validators:@[]];
+}
+
+- (instancetype)initWithSections:(NSArray *)sections validators:(NSArray *)validators
+{
+    return [self initWithSections:sections predicates:@{} validators:validators];
+}
+
+- (instancetype)initWithSections:(NSArray *)sections predicates:(NSDictionary *)predicates validators:(NSArray *)validators
 {
     if (self = [super init]) {
         _sections = sections.copy;
         _predicates = predicates.copy;
+        _validators = validators.copy;
     }
     return self;
 }

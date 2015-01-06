@@ -9,7 +9,9 @@
 #import <Foundation/Foundation.h>
 #import <objc/runtime.h>
 
-@class SPLField;
+@class SPLField, SPLFormular;
+
+
 
 @protocol SPLFieldUIAdapter <NSObject>
 
@@ -85,14 +87,19 @@
 
 @property (nonatomic, readonly) NSArray *sections;
 @property (nonatomic, readonly) NSDictionary *predicates;
+@property (nonatomic, readonly) NSArray *validators;
 
 - (void)enforceConsistencyWithObject:(id)object;
 - (NSArray *)visibleSectionsWithObject:(id)object;
+
+- (BOOL)validateObject:(id)object failingField:(SPLField **)failingField;
 
 - (SPLSection *)objectAtIndexedSubscript:(NSUInteger)idx;
 
 - (instancetype)init UNAVAILABLE_ATTRIBUTE;
 - (instancetype)initWithSections:(NSArray /* SPLSection */ *)sections;
-- (instancetype)initWithSections:(NSArray /* SPLSection */ *)sections predicates:(NSDictionary *)predicates NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithSections:(NSArray /* SPLSection */ *)sections validators:(NSArray /* SPLFormValidator */ *)validators;
+- (instancetype)initWithSections:(NSArray /* SPLSection */ *)sections predicates:(NSDictionary *)predicates;
+- (instancetype)initWithSections:(NSArray /* SPLSection */ *)sections predicates:(NSDictionary *)predicates validators:(NSArray /* SPLFormValidator */ *)validators NS_DESIGNATED_INITIALIZER;
 
 @end
