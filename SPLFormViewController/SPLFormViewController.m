@@ -52,7 +52,6 @@
     return [[UIBarButtonItem alloc] initWithCustomView:activityIndicatorView];
 }
 
-
 - (void)setCurrentSnapshot:(SPLObjectSnapshot *)currentSnapshot
 {
     if (currentSnapshot != _currentSnapshot) {
@@ -60,6 +59,19 @@
 
         if (self.isViewLoaded) {
             [self _updateCancelBarButtonItem];
+        }
+    }
+}
+
+- (void)setObject:(id)object
+{
+    if (object != _object) {
+        _object = object;
+
+        [self _bootstrapObjectToFormular];
+
+        if (self.isViewLoaded) {
+            [self.tableView reloadData];
         }
     }
 }
@@ -74,23 +86,7 @@
         }
 
         _formular = formular;
-        _initialSnapshot = [_formular snapshotObject:self.object];
-        self.currentSnapshot = self.initialSnapshot;
-
-        for (SPLSection *section in _formular) {
-            for (SPLField *field in section) {
-                __weak typeof(self) weakSelf = self;
-                field.adapter.object = self.object;
-                [field.adapter setChangeBlock:^{
-                    __strong typeof(self) strongSelf = weakSelf;
-                    [strongSelf setVisibleSections:[strongSelf.formular visibleSectionsWithObject:strongSelf.object] animated:YES];
-                    strongSelf.currentSnapshot = [strongSelf.formular snapshotObject:strongSelf.object];
-                }];
-            }
-        }
-
-        [_formular enforceConsistencyWithObject:self.object];
-        self.visibleSections = [_formular visibleSectionsWithObject:self.object];
+        [self _bootstrapObjectToFormular];
 
         if (self.isViewLoaded) {
             [self.tableView reloadData];
@@ -214,6 +210,27 @@
 
 #pragma mark - Private category implementation ()
 
+- (void)_bootstrapObjectToFormular
+{
+    _initialSnapshot = [self.formular snapshotObject:self.object];
+    self.currentSnapshot = self.initialSnapshot;
+
+    for (SPLSection *section in self.formular) {
+        for (SPLField *field in section) {
+            __weak typeof(self) weakSelf = self;
+            field.adapter.object = self.object;
+            [field.adapter setChangeBlock:^{
+                __strong typeof(self) strongSelf = weakSelf;
+                [strongSelf setVisibleSections:[strongSelf.formular visibleSectionsWithObject:strongSelf.object] animated:YES];
+                strongSelf.currentSnapshot = [strongSelf.formular snapshotObject:strongSelf.object];
+            }];
+        }
+    }
+
+    [self.formular enforceConsistencyWithObject:self.object];
+    self.visibleSections = [self.formular visibleSectionsWithObject:self.object];
+}
+
 - (void)_animateSectionDiffFromPreviousSections:(NSArray *)previousSections toNewSections:(NSArray *)newSections animated:(BOOL)animated
 {
     SPLSectionDiff *diff = [[SPLSectionDiff alloc] initWithSections:newSections previousSections:previousSections];
@@ -282,7 +299,7 @@
             [alert show];
             return;
         }
-
+        
         if (self.completionHandler) {
             self.completionHandler(YES);
             self.completionHandler = nil;

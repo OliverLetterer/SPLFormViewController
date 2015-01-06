@@ -20,7 +20,7 @@
 @interface SPLFormViewController : UITableViewController
 
 @property (nonatomic, strong) SPLFormular *formular;
-@property (nonatomic, readonly) id object;
+@property (nonatomic, strong) id object;
 
 @property (nonatomic, copy, readonly) void(^completionHandler)(BOOL didSaveObject);
 - (void)setCompletionHandler:(void (^)(BOOL didSaveObject))completionHandler;
