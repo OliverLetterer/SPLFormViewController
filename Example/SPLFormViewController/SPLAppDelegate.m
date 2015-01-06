@@ -62,14 +62,14 @@
     SPLFormViewController *viewController = [[SPLFormViewController alloc] initWithObject:[TestObject new]];
     SPLSection *section0 = [[SPLSection alloc] initWithIdentifier:@"1" title:NSLocalizedString(@"Contact", @"") fields:^NSArray *{
         return @[
-                 [[SPLField alloc] initWithProperty:@"firstName" title:NSLocalizedString(@"First name", @"") type:SPLPropertyTypePlainText],
-                 [[SPLField alloc] initWithProperty:@"lastName" title:NSLocalizedString(@"Last name", @"") type:SPLPropertyTypePlainText],
+                 [[SPLField alloc] initWithProperty:@"firstName" title:NSLocalizedString(@"First name", @"") type:SPLPropertyTypeHumanText],
+                 [[SPLField alloc] initWithProperty:@"lastName" title:NSLocalizedString(@"Last name", @"") type:SPLPropertyTypeHumanText],
                  ];
     }];
 
     SPLSection *section1 = [[SPLSection alloc] initWithIdentifier:@"0" fields:^NSArray *{
         return @[
-                 [[SPLField alloc] initWithProperty:@"username" title:NSLocalizedString(@"Username", @"") type:SPLPropertyTypePlainText],
+                 [[SPLField alloc] initWithProperty:@"username" title:NSLocalizedString(@"Username", @"") type:SPLPropertyTypeHumanText],
                  [[SPLField alloc] initWithProperty:@"email" title:NSLocalizedString(@"E-Mail", @"") type:SPLPropertyTypeEMail],
                  [[SPLField alloc] initWithProperty:@"password" title:NSLocalizedString(@"Password", @"") type:SPLPropertyTypePassword],
                  [[SPLField alloc] initWithProperty:@"passwordConfirmation" title:NSLocalizedString(@"Password confirmation", @"") type:SPLPropertyTypePassword],
@@ -80,10 +80,10 @@
 
     SPLSection *section2 = [[SPLSection alloc] initWithIdentifier:@"2" title:NSLocalizedString(@"Address", @"") fields:^NSArray *{
         return @[
-                 [[SPLField alloc] initWithProperty:@"street" title:NSLocalizedString(@"Street", @"") type:SPLPropertyTypePlainText],
+                 [[SPLField alloc] initWithProperty:@"street" title:NSLocalizedString(@"Street", @"") type:SPLPropertyTypeHumanText],
                  [[SPLField alloc] initWithProperty:@"zip" title:NSLocalizedString(@"ZIP Code", @"") type:SPLPropertyTypeNumber],
-                 [[SPLField alloc] initWithProperty:@"city" title:NSLocalizedString(@"City", @"") type:SPLPropertyTypePlainText],
-                 [[SPLField alloc] initWithProperty:@"country" title:NSLocalizedString(@"Country", @"") type:SPLPropertyTypePlainText],
+                 [[SPLField alloc] initWithProperty:@"city" title:NSLocalizedString(@"City", @"") type:SPLPropertyTypeHumanText],
+                 [[SPLField alloc] initWithProperty:@"country" title:NSLocalizedString(@"Country", @"") type:SPLPropertyTypeHumanText],
                  ];
     }];
 
