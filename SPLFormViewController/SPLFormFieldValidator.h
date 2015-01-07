@@ -28,5 +28,6 @@
 
 + (instancetype)validatorWithAllTextFields;
 + (instancetype)validatorWithRequiredTextFields:(NSArray *)requiredTextFields;
++ (instancetype)validatorWithEqualProperties:(NSArray *)equalProperties;
 
 @end

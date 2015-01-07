@@ -15,6 +15,7 @@
 typedef NS_ENUM(NSInteger, SPLFormFieldValidatorType) {
     SPLFormFieldValidatorTypeAllTextFields,
     SPLFormFieldValidatorTypeSpecificTextFields,
+    SPLFormFieldValidatorTypeEqualProperties,
 };
 
 
@@ -22,10 +23,12 @@ typedef NS_ENUM(NSInteger, SPLFormFieldValidatorType) {
 @interface SPLFormFieldValidator ()
 
 @property (nonatomic, readonly) NSArray *requiredTextFields;
+@property (nonatomic, readonly) NSArray *equalProperties;
 @property (nonatomic, readonly) SPLFormFieldValidatorType type;
 
 - (instancetype)initWithAllTextFields;
 - (instancetype)initWithRequiredTextFields:(NSArray *)requiredTextFields;
+- (instancetype)initWithEqualProperties:(NSArray *)equalProperties;
 
 @end
 
@@ -41,6 +44,11 @@ typedef NS_ENUM(NSInteger, SPLFormFieldValidatorType) {
 + (instancetype)validatorWithRequiredTextFields:(NSArray *)requiredTextFields
 {
     return [[self alloc] initWithRequiredTextFields:requiredTextFields];
+}
+
++ (instancetype)validatorWithEqualProperties:(NSArray *)equalProperties
+{
+    return [[self alloc] initWithEqualProperties:equalProperties];
 }
 
 - (instancetype)initWithAllTextFields
@@ -60,9 +68,25 @@ typedef NS_ENUM(NSInteger, SPLFormFieldValidatorType) {
     return self;
 }
 
+- (instancetype)initWithEqualProperties:(NSArray *)equalProperties
+{
+    if (self = [super init]) {
+        _type = SPLFormFieldValidatorTypeEqualProperties;
+        _equalProperties = equalProperties;
+    }
+    return self;
+}
+
 - (BOOL)validateObject:(id)object forFormular:(SPLFormular *)formular failingField:(SPLField *__autoreleasing *)failingField
 {
     NSArray *visibleSections = [formular visibleSectionsWithObject:object];
+
+    BOOL(^failWithField)(SPLField *field) = ^BOOL(SPLField *field) {
+        if (failingField) {
+            *failingField = field;
+        }
+        return NO;
+    };
 
     BOOL(^matches)(NSString *value, NSString *regex) = ^BOOL(NSString *value, NSString *regex) {
         if (!value || ![value isKindOfClass:[NSString class]]) {
@@ -114,14 +138,14 @@ typedef NS_ENUM(NSInteger, SPLFormFieldValidatorType) {
             }
         }
 
-
-        if (!isValid && failingField) {
-            *failingField = field;
+        if (!isValid) {
+            return failWithField(field);
         }
 
-        return isValid;
+        return YES;
     };
 
+    NSMutableSet *equalValues = [NSMutableSet set];
     for (SPLSection *section in visibleSections) {
         for (SPLField *field in section) {
             switch (self.type) {
@@ -141,6 +165,25 @@ typedef NS_ENUM(NSInteger, SPLFormFieldValidatorType) {
                     }
                     break;
                 }
+                case SPLFormFieldValidatorTypeEqualProperties: {
+                    if (![self.equalProperties containsObject:field.property]) {
+                        continue;
+                    }
+
+                    id value = [object valueForKey:field.property];
+                    if (equalValues.count > 0) {
+                        if (value && ![equalValues containsObject:value]) {
+                            return failWithField(field);
+                        } else if (!value) {
+                            return failWithField(field);;
+                        }
+                    } else {
+                        if (value) {
+                            [equalValues addObject:value];
+                        }
+                    }
+                    break;
+                }
             }
         }
     }
@@ -150,6 +193,7 @@ typedef NS_ENUM(NSInteger, SPLFormFieldValidatorType) {
 
 - (void)enforceConsistencyWithObject:(id)object
 {
+    NSString *fieldType = Nil;
     switch (self.type) {
         case SPLFormFieldValidatorTypeAllTextFields:
             return;
@@ -163,8 +207,31 @@ typedef NS_ENUM(NSInteger, SPLFormFieldValidatorType) {
             }
             break;
         }
-        default:
+        case SPLFormFieldValidatorTypeEqualProperties: {
+            for (NSString *propertyName in self.equalProperties) {
+                objc_property_t property = class_getProperty([object class], propertyName.UTF8String);
+                if (property == NULL) {
+                    [NSException raise:NSInternalInconsistencyException format:@"object %@ does not contain property %@", object, propertyName];
+                }
+
+                char *type = property_copyAttributeValue(property, "T");
+                if (!type) {
+                    [NSException raise:NSInternalInconsistencyException format:@"object %@[%@] property does not have a type", object, propertyName];
+                }
+
+                NSString *thisType = [[NSString alloc] initWithCString:type encoding:NSASCIIStringEncoding];
+                free(type);
+
+                if (!fieldType) {
+                    fieldType = thisType;
+                }
+
+                if (![fieldType isEqualToString:thisType]) {
+                    [NSException raise:NSInternalInconsistencyException format:@"object %@ properties %@ dont have the same type", object, self.equalProperties];
+                }
+            }
             break;
+        }
     }
 }
 

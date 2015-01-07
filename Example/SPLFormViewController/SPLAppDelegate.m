@@ -120,8 +120,7 @@
                                  };
 
     SPLFormFieldValidator *validator = [SPLFormFieldValidator validatorWithAllTextFields];
-
-    viewController.formular = [[SPLFormular alloc] initWithSections:sections predicates:predicates validators:@[ validator ]];
+    viewController.formular = [[SPLFormular alloc] initWithSections:sections predicates:predicates validators:@[ [SPLFormFieldValidator validatorWithEqualProperties:@[ @"password", @"passwordConfirmation" ]] ]];
 
     [viewController setCompletionHandler:^(BOOL savedObject) {
         [_navigationController popToRootViewControllerAnimated:YES];
