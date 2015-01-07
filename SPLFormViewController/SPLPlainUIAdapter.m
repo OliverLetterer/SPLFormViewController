@@ -162,7 +162,12 @@ static const void * fieldKey = &fieldKey;
             break;
         }
         case SPLPropertyTypeNumber: {
-            cell.textField.text = value ? [NSString stringWithFormat:@"%.0lf", [value doubleValue]] : nil;
+            if ([field propertyClassWithObject:self.object] == [NSNumber class]) {
+                cell.textField.text = value ? [NSString stringWithFormat:@"%.0lf", [value doubleValue]] : nil;
+            } else {
+                cell.textField.text = value;
+            }
+
             cell.textField.placeholder = cell.textLabel.text;
             cell.textField.autocapitalizationType = UITextAutocapitalizationTypeNone;
             cell.textField.autocorrectionType = UITextAutocorrectionTypeNo;

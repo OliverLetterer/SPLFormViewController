@@ -35,6 +35,29 @@ typedef NS_ENUM(NSInteger, SPLSelectEnumValuesViewControllerType) {
 
 #pragma mark - setters and getters
 
+- (void)setAdditionalRightBarButtonItems:(NSArray *)additionalRightBarButtonItems
+{
+    if (additionalRightBarButtonItems != _additionalRightBarButtonItems) {
+        _additionalRightBarButtonItems = additionalRightBarButtonItems;
+
+        [self _updateBarButtonItems];
+    }
+}
+
+- (void)setHumanReadableOptions:(NSArray *)options values:(NSArray *)values
+{
+    NSParameterAssert(options.count == values.count);
+
+    if (options != _options || values != _values) {
+        _options = options;
+        _values = values;
+
+        if (self.isViewLoaded) {
+            [self.tableView reloadData];
+        }
+    }
+}
+
 - (UIBarButtonItem *)cancelBarButtonItem
 {
     return [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(_cancelTapped:)];
@@ -170,11 +193,11 @@ typedef NS_ENUM(NSInteger, SPLSelectEnumValuesViewControllerType) {
         [self.navigationItem setLeftBarButtonItem:self.cancelBarButtonItem animated:YES];
     }
 
-    if ([self.initialSelectedObjects isEqual:self.selectedObjects]) {
-        [self.navigationItem setRightBarButtonItem:nil animated:YES];
-    } else if (!self.navigationItem.rightBarButtonItem) {
-        [self.navigationItem setRightBarButtonItem:self.saveBarButtonItem animated:YES];
-    }
+    NSArray *rightBarButtonItems = [self.initialSelectedObjects isEqual:self.selectedObjects] ? @[] : @[ self.saveBarButtonItem ];
+    rightBarButtonItems = [rightBarButtonItems arrayByAddingObjectsFromArray:self.additionalRightBarButtonItems];
+
+    BOOL animated = self.navigationItem.rightBarButtonItems.count != rightBarButtonItems.count;
+    [self.navigationItem setRightBarButtonItems:rightBarButtonItems animated:animated];
 }
 
 @end

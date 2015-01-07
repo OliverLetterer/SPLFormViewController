@@ -30,8 +30,12 @@
 
 @property (nonatomic, weak) id<SPLSelectEnumValuesViewControllerDelegate> delegate;
 
+@property (nonatomic, strong) NSArray *additionalRightBarButtonItems;
+
 @property (nonatomic, readonly) NSArray *options;
 @property (nonatomic, readonly) NSArray *values;
+- (void)setHumanReadableOptions:(NSArray *)options values:(NSArray *)values;
+
 @property (nonatomic, readonly) SPLField *field;
 @property (nonatomic, readonly) id object;
 

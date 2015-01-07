@@ -23,6 +23,11 @@
 
 #pragma mark - setters and getters
 
+- (SPLSection *)objectAtIndexedSubscript:(NSUInteger)index
+{
+    return self.visibleSections[index];
+}
+
 - (void)setCompletionHandler:(void (^)(BOOL))completionHandler
 {
     _completionHandler = completionHandler;
@@ -157,13 +162,12 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    SPLSection *sectionObject = self.visibleSections[section];
-    return sectionObject.fields.count;
+    return self[section].fields.count;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    SPLField *field = self.visibleSections[indexPath.section][indexPath.row];
+    SPLField *field = self[indexPath.section][indexPath.row];
 
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:[field.adapter reuseIdentifier]];
     if (!cell) {
@@ -184,7 +188,7 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    SPLField *field = self.visibleSections[indexPath.section][indexPath.row];
+    SPLField *field = self[indexPath.section][indexPath.row];
 
     if (![field.adapter respondsToSelector:@selector(tableView:didSelectRowAtIndexPath:forField:)]) {
         return [tableView deselectRowAtIndexPath:indexPath animated:NO];
@@ -195,8 +199,7 @@
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
 {
-    SPLSection *sectionObject = self.visibleSections[section];
-    return sectionObject.title;
+    return self[section].title;
 }
 
 #pragma mark - Instance methods
@@ -295,7 +298,7 @@
     if (_cancelBarButtonItem) {
         BOOL snapshotIsEqual = [self.currentSnapshot isEqualToSnapshot:self.initialSnapshot];
         BOOL firstInNavigationController = self.navigationController.viewControllers.firstObject == self;
-        BOOL isBeingPresented = self.isBeingPresented || self.navigationController.isBeingPresented;
+        BOOL isBeingPresented = self.isBeingPresented || self.parentViewController.isBeingPresented || self.parentViewController.parentViewController.isBeingPresented;
 
         if (snapshotIsEqual && !firstInNavigationController && !isBeingPresented) {
             [self.navigationItem setLeftBarButtonItem:nil animated:YES];

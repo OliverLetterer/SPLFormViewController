@@ -38,4 +38,6 @@
 - (instancetype)initWithStyle:(UITableViewStyle)style UNAVAILABLE_ATTRIBUTE;
 - (instancetype)initWithObject:(id)object NS_DESIGNATED_INITIALIZER;
 
+- (SPLSection *)objectAtIndexedSubscript:(NSUInteger)index;
+
 @end
