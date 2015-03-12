@@ -19,6 +19,8 @@ typedef NS_ENUM(NSInteger, SPLPropertyType) {
     SPLPropertyTypePrice,
     SPLPropertyTypeIPAddress,
     SPLPropertyTypeBoolean,
+    SPLPropertyTypeDate,
+    SPLPropertyTypeDateTime
 };
 
 

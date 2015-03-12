@@ -124,6 +124,8 @@ typedef NS_ENUM(NSInteger, SPLFormFieldValidatorType) {
                     break;
                 case SPLPropertyTypeNumber:
                 case SPLPropertyTypePrice:
+                case SPLPropertyTypeDate:
+                case SPLPropertyTypeDateTime:
                     isValid = value != nil;
                     break;
                 case SPLPropertyTypeBoolean:

@@ -15,6 +15,7 @@
 @property (nonatomic, readonly) NSString *email;
 @property (nonatomic, readonly) NSString *password;
 @property (nonatomic, readonly) NSString *passwordConfirmation;
+@property (nonatomic, readonly) NSDate *date;
 
 @property (nonatomic, readonly) NSNumber *hasHomepage;
 @property (nonatomic, readonly) NSString *homepage;
@@ -64,6 +65,7 @@
         return @[
                  [[SPLField alloc] initWithProperty:@"firstName" title:NSLocalizedString(@"First name", @"") type:SPLPropertyTypeHumanText],
                  [[SPLField alloc] initWithProperty:@"lastName" title:NSLocalizedString(@"Last name", @"") type:SPLPropertyTypeHumanText],
+                 [[SPLField alloc] initWithProperty:@"date" title:NSLocalizedString(@"Date", @"") type:SPLPropertyTypeDate],
                  ];
     }];
 
@@ -119,7 +121,7 @@
                                  @"country": [NSPredicate predicateWithFormat:@"isHuman == YES"],
                                  };
 
-    SPLFormFieldValidator *validator = [SPLFormFieldValidator validatorWithAllTextFields];
+//    SPLFormFieldValidator *validator = [SPLFormFieldValidator validatorWithAllTextFields];
     viewController.formular = [[SPLFormular alloc] initWithSections:sections predicates:predicates validators:@[ [SPLFormFieldValidator validatorWithEqualProperties:@[ @"password", @"passwordConfirmation" ]] ]];
 
     [viewController setCompletionHandler:^(BOOL savedObject) {
