@@ -8,10 +8,10 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
-#import <SPLFormular.h>
-#import <SPLPlainUIAdapter.h>
-#import <SPLEnumUIAdapter.h>
-#import <SPLFormFieldValidator.h>
+#import <SPLFormViewController/SPLFormular.h>
+#import <SPLFormViewController/SPLPlainUIAdapter.h>
+#import <SPLFormViewController/SPLEnumUIAdapter.h>
+#import <SPLFormViewController/SPLFormFieldValidator.h>
 
 
 

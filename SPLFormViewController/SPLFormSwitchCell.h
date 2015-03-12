@@ -21,8 +21,8 @@
  THE SOFTWARE.
  */
 
-@import UIKit;
-#import "SPLFormTableViewCell.h"
+#import <UIKit/UIKit.h>
+#import <SPLFormViewController/SPLFormTableViewCell.h>
 
 
 

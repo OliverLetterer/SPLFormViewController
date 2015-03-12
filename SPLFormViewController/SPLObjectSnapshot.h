@@ -6,7 +6,7 @@
 //  Copyright 2014 __MyCompanyName__. All rights reserved.
 //
 
-#import <SPLFormular.h>
+#import <SPLFormViewController/SPLFormular.h>
 
 
 

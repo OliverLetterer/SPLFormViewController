@@ -7,8 +7,7 @@
 //
 
 #import "SPLAppDelegate.h"
-#import <SPLFormViewController.h>
-#import <SPLSelectEnumValuesViewController.h>
+@import SPLFormViewController;
 
 @interface TestObject : NSObject
 @property (nonatomic, readonly) NSString *username;
