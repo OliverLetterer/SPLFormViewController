@@ -9,7 +9,7 @@
 
 Pod::Spec.new do |s|
   s.name             = "SPLFormViewController"
-  s.version          = "0.4.0"
+  s.version          = "0.4.1"
   s.summary          = "Form ViewControllers made easy."
   s.homepage         = "https://github.com/OliverLetterer/SPLFormViewController"
   s.license          = 'MIT'
